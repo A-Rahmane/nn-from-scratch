@@ -17,7 +17,7 @@ This repository contains implementations of neural network components built enti
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/YOUR_USERNAME/nn-from-scratch.git
+git clone https://github.com/A-Rahmane/nn-from-scratch.git
 cd nn-from-scratch
 ```
 
