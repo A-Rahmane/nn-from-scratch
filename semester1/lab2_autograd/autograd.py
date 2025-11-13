@@ -81,7 +81,7 @@ class Tensor(BaseTensor):
         self.requires_grad = requires_grad and self._grad_enabled
         self.grad: Optional["Tensor"] = None
         self.grad_fn: Optional[Callable] = None
-        self._prev: Set["Tensor"] = set(_children)
+        self._prev: Tuple["Tensor", ...] = _children
         self._op = _op
         
     def backward(self, gradient: Optional["Tensor"] = None) -> None:
@@ -129,12 +129,13 @@ class Tensor(BaseTensor):
         
         # Build topological ordering of computational graph
         topo_order: List["Tensor"] = []
-        visited: Set["Tensor"] = set()
+        visited: Set[int] = set()
         
         def build_topo(tensor: "Tensor") -> None:
             """Build topological ordering via depth-first search."""
-            if tensor not in visited:
-                visited.add(tensor)
+            tensor_id = id(tensor)
+            if tensor_id not in visited:
+                visited.add(tensor_id)
                 for parent in tensor._prev:
                     build_topo(parent)
                 topo_order.append(tensor)
