@@ -875,4 +875,221 @@ def numerical_gradient(
     Mathematical Foundation:
         f'(x) ≈ [f(x + ε) - f(x - ε)] / (2ε)
         
-    This is the
+    This is the central difference formula, which is more accurate
+        than forward differences and less susceptible to numerical errors.
+    
+    Args:
+        func: Function that takes a tensor and returns a scalar tensor
+        tensor: Input tensor to compute gradient for
+        epsilon: Small perturbation for finite differences
+        
+    Returns:
+        Numerical gradient as NumPy array
+        
+    Example:
+        >>> def f(x):
+        ...     return (x ** 2).sum()
+        >>> x = Tensor([1.0, 2.0, 3.0], requires_grad=True)
+        >>> num_grad = numerical_gradient(f, x)
+        >>> # Compare with autograd
+        >>> y = f(x)
+        >>> y.backward()
+        >>> print(np.allclose(num_grad, x.grad.data))  # Should be True
+    """
+    grad = np.zeros_like(tensor.data)
+    
+    # Compute gradient for each element
+    it = np.nditer(tensor.data, flags=['multi_index'], op_flags=['readwrite'])
+    while not it.finished:
+        idx = it.multi_index
+        old_value = tensor.data[idx]
+        
+        # Compute f(x + epsilon)
+        tensor.data[idx] = old_value + epsilon
+        fxh = func(tensor).data.item()
+        
+        # Compute f(x - epsilon)
+        tensor.data[idx] = old_value - epsilon
+        fxl = func(tensor).data.item()
+        
+        # Central difference
+        grad[idx] = (fxh - fxl) / (2 * epsilon)
+        
+        # Restore original value
+        tensor.data[idx] = old_value
+        it.iternext()
+    
+    return grad
+
+
+def check_gradients(
+    func: Callable[[Tensor], Tensor],
+    tensor: Tensor,
+    epsilon: float = 1e-5,
+    tolerance: float = 1e-5
+) -> Tuple[bool, float]:
+    """
+    Check if autograd gradients match numerical gradients.
+    
+    Computes both automatic and numerical gradients and compares them.
+    
+    Args:
+        func: Function that takes a tensor and returns a scalar tensor
+        tensor: Input tensor to check gradients for
+        epsilon: Perturbation for numerical gradient
+        tolerance: Maximum allowed difference
+        
+    Returns:
+        Tuple of (gradients_match, max_difference)
+        
+    Example:
+        >>> def f(x):
+        ...     return (x ** 3 + 2 * x).sum()
+        >>> x = Tensor([1.0, 2.0], requires_grad=True)
+        >>> match, diff = check_gradients(f, x)
+        >>> print(f"Gradients match: {match}, Max diff: {diff}")
+    """
+    # Compute autograd gradient
+    tensor.zero_grad()
+    output = func(tensor)
+    output.backward()
+    autograd_grad = tensor.grad.data.copy()
+    
+    # Compute numerical gradient
+    numerical_grad = numerical_gradient(func, tensor, epsilon)
+    
+    # Compare
+    diff = np.abs(autograd_grad - numerical_grad)
+    max_diff = np.max(diff)
+    match = max_diff < tolerance
+    
+    return match, max_diff
+
+
+# ==================== Visualization Utilities ====================
+
+
+def visualize_computation_graph(
+    tensor: Tensor,
+    format: str = "png",
+    filename: str = "computation_graph"
+) -> None:
+    """
+    Visualize the computational graph (requires graphviz).
+    
+    Creates a visual representation of the computational graph leading
+    to the given tensor.
+    
+    Args:
+        tensor: Output tensor to visualize graph for
+        format: Output format ('png', 'pdf', 'svg')
+        filename: Output filename (without extension)
+        
+    Note:
+        Requires graphviz package: pip install graphviz
+        
+    Example:
+        >>> x = Tensor([1.0], requires_grad=True)
+        >>> y = x ** 2
+        >>> z = y + 3
+        >>> visualize_computation_graph(z)  # Creates computation_graph.png
+    """
+    try:
+        from graphviz import Digraph
+    except ImportError:
+        print("graphviz package required. Install with: pip install graphviz")
+        return
+    
+    dot = Digraph(format=format)
+    dot.attr(rankdir='LR')  # Left to right layout
+    
+    nodes = set()
+    edges = set()
+    
+    def build_graph(tensor: Tensor):
+        """Recursively build graph structure."""
+        if tensor not in nodes:
+            nodes.add(tensor)
+            
+            # Add node for tensor
+            label = f"{tensor._op}\nshape: {tensor.shape}"
+            if tensor.requires_grad:
+                label += f"\ngrad: {tensor.grad is not None}"
+            
+            dot.node(str(id(tensor)), label, shape='box')
+            
+            # Add parent nodes and edges
+            for parent in tensor._prev:
+                if parent not in nodes:
+                    build_graph(parent)
+                edge = (str(id(parent)), str(id(tensor)))
+                if edge not in edges:
+                    edges.add(edge)
+                    dot.edge(*edge)
+    
+    build_graph(tensor)
+    dot.render(filename, cleanup=True)
+    print(f"Computation graph saved to {filename}.{format}")
+
+
+# Test basic functionality
+if __name__ == "__main__":
+    print("=== Testing Autograd ===\n")
+    
+    # Test 1: Simple gradient
+    print("Test 1: f(x) = x^2")
+    x = Tensor([2.0], requires_grad=True)
+    y = x ** 2
+    y.backward()
+    print(f"x = {x.data}, dy/dx = {x.grad.data} (expected: [4.0])\n")
+    
+    # Test 2: Chain rule
+    print("Test 2: f(x) = (x^2 + 1)^2")
+    x = Tensor([2.0], requires_grad=True)
+    y = (x ** 2 + 1) ** 2
+    y.backward()
+    print(f"x = {x.data}, dy/dx = {x.grad.data} (expected: [40.0])\n")
+    
+    # Test 3: Multiple operations
+    print("Test 3: f(x, y) = x * y + x^2")
+    x = Tensor([3.0], requires_grad=True)
+    y = Tensor([4.0], requires_grad=True)
+    z = x * y + x ** 2
+    z.backward()
+    print(f"∂z/∂x = {x.grad.data} (expected: [10.0])")
+    print(f"∂z/∂y = {y.grad.data} (expected: [3.0])\n")
+    
+    # Test 4: Sum operation
+    print("Test 4: f(x) = sum(x)")
+    x = Tensor([[1.0, 2.0], [3.0, 4.0]], requires_grad=True)
+    y = x.sum()
+    y.backward()
+    print(f"∂y/∂x =\n{x.grad.data}\n(expected: all ones)\n")
+    
+    # Test 5: Matrix multiplication
+    print("Test 5: Matrix multiplication")
+    A = Tensor([[1.0, 2.0], [3.0, 4.0]], requires_grad=True)
+    B = Tensor([[5.0, 6.0], [7.0, 8.0]], requires_grad=True)
+    C = A @ B
+    loss = C.sum()
+    loss.backward()
+    print(f"∂L/∂A =\n{A.grad.data}")
+    print(f"∂L/∂B =\n{B.grad.data}\n")
+    
+    # Test 6: Numerical gradient checking
+    print("Test 6: Gradient checking")
+    def func(x):
+        return ((x ** 2) * 3 + x).sum()
+    
+    x = Tensor([1.0, 2.0, 3.0], requires_grad=True)
+    match, diff = check_gradients(func, x)
+    print(f"Gradients match: {match}, Max difference: {diff:.2e}\n")
+    
+    # Test 7: no_grad context
+    print("Test 7: no_grad context")
+    x = Tensor([1.0], requires_grad=True)
+    with no_grad():
+        y = x * 2
+        print(f"y.requires_grad = {y.requires_grad} (expected: False)\n")
+    
+    print("All basic tests passed!")
