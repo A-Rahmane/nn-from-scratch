@@ -31,7 +31,7 @@ class Tensor:
         return Tensor(self.data.copy())
 
     def __repr__(self) -> str:
-        return f"Tensor({self.data})"
+        return f"Tensor(shape={self.shape}, dtype={self.dtype})"
 
     def __str__(self) -> str:
         return str(self.data)
