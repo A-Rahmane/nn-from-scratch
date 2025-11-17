@@ -12,36 +12,12 @@ organized into separate files for maintainability:
 - linalg.py: Linear algebra operations (matmul, dot)
 - factory.py: Factory methods and batch operations
 
-Usage:
-    from semester1.lab1_tensor_operations.tensor import Tensor
-    
-    # Create tensors
-    t1 = Tensor([1, 2, 3])
-    t2 = Tensor([[1, 2], [3, 4]])
-    
-    # Arithmetic operations
-    result = t1 + 5
-    
-    # Matrix operations
-    result = t2 @ t2.T
-    
-    # Aggregations
-    mean_val = t2.mean(axis=0)
-
 Architecture:
     The Tensor class is split into focused modules:
     - Each module handles a specific category of operations
     - core.py imports and binds all operations at module load time
     - Zero runtime overhead compared to monolithic implementation
     - Easier to maintain, test, and extend
-
-Example:
-    >>> from semester1.lab1_tensor_operations.tensor import Tensor
-    >>> t = Tensor([1, 2, 3])
-    >>> print(t + 5)
-    Tensor([6. 7. 8.])
-    >>> print(t.mean())
-    Tensor(2.0)
 """
 
 from .core import Tensor
@@ -60,11 +36,6 @@ def tensor(data):
     
     Returns:
         Tensor object
-    
-    Example:
-        >>> t = tensor([1, 2, 3])
-        >>> print(t.shape)
-        (3,)
     """
     return Tensor(data)
 
@@ -77,12 +48,6 @@ def zeros(shape):
     
     Returns:
         Tensor of zeros
-    
-    Example:
-        >>> t = zeros((2, 3))
-        >>> print(t)
-        Tensor([[0. 0. 0.]
-                [0. 0. 0.]])
     """
     import numpy as np
     return Tensor(np.zeros(shape, dtype=np.float32))
@@ -96,12 +61,6 @@ def ones(shape):
     
     Returns:
         Tensor of ones
-    
-    Example:
-        >>> t = ones((2, 2))
-        >>> print(t)
-        Tensor([[1. 1.]
-                [1. 1.]])
     """
     import numpy as np
     return Tensor(np.ones(shape, dtype=np.float32))
@@ -115,11 +74,6 @@ def rand(shape):
     
     Returns:
         Tensor of random values
-    
-    Example:
-        >>> t = rand((2, 3))
-        >>> print(t.shape)
-        (2, 3)
     """
     import numpy as np
     return Tensor(np.random.rand(*shape))
@@ -133,11 +87,6 @@ def randn(shape):
     
     Returns:
         Tensor of random normal values
-    
-    Example:
-        >>> t = randn((3, 3))
-        >>> print(t.shape)
-        (3, 3)
     """
     import numpy as np
     return Tensor(np.random.randn(*shape))

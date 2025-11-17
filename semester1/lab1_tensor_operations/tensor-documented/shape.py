@@ -51,11 +51,6 @@ def flatten(t: Tensor) -> Tensor:
     
     Returns:
         Flattened 1D tensor
-    
-    Example:
-        >>> t = Tensor([[1, 2], [3, 4], [5, 6]])
-        >>> print(flatten(t))
-        Tensor([1. 2. 3. 4. 5. 6.])
     """
     return Tensor(t.data.flatten())
 
@@ -95,12 +90,6 @@ def get_T(t: Tensor) -> Tensor:
     
     Returns:
         Transposed tensor
-    
-    Example:
-        >>> t = Tensor([[1, 2], [3, 4]])
-        >>> print(get_T(t))
-        Tensor([[1. 3.]
-                [2. 4.]])
     """
     return Tensor(t.data.T)
 

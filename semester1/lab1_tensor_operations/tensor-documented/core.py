@@ -33,17 +33,6 @@ class Tensor:
     
     Attributes:
         data: The underlying NumPy array storing tensor values (float32)
-    
-    Examples:
-        >>> t = Tensor([1, 2, 3])
-        >>> print(t.shape)
-        (3,)
-        
-        >>> t2d = Tensor([[1, 2], [3, 4]])
-        >>> result = t2d + 5
-        >>> print(result)
-        Tensor([[6. 7.]
-                [8. 9.]])
     """
 
     def __init__(self, data: Union[list, tuple, np.ndarray, float, int, 'Tensor']):
@@ -67,11 +56,6 @@ class Tensor:
         
         Returns:
             Tuple of dimension sizes
-        
-        Example:
-            >>> t = Tensor([[1, 2, 3], [4, 5, 6]])
-            >>> print(t.shape)
-            (2, 3)
         """
         return self.data.shape
 
@@ -81,11 +65,6 @@ class Tensor:
         
         Returns:
             Number of dimensions (axes)
-        
-        Example:
-            >>> t = Tensor([[[1, 2], [3, 4]]])
-            >>> print(t.ndim)
-            3
         """
         return self.data.ndim
 
@@ -95,11 +74,6 @@ class Tensor:
         
         Returns:
             Total number of elements
-        
-        Example:
-            >>> t = Tensor([[1, 2, 3], [4, 5, 6]])
-            >>> print(t.size)
-            6
         """
         return self.data.size
 
@@ -109,11 +83,6 @@ class Tensor:
         
         Returns:
             NumPy dtype object
-        
-        Example:
-            >>> t = Tensor([1, 2, 3])
-            >>> print(t.dtype)
-            float32
         """
         return self.data.dtype
     
@@ -124,13 +93,6 @@ class Tensor:
         
         Returns:
             Independent copy of the tensor
-        
-        Example:
-            >>> t = Tensor([1, 2, 3])
-            >>> t_copy = t.clone()
-            >>> t_copy[0] = 99
-            >>> print(t.data[0])  # Original unchanged
-            1.0
         """
         return Tensor(self.data.copy())
 
