@@ -31,18 +31,6 @@ def getitem(t: Tensor, key) -> Tensor:
     
     Returns:
         Indexed tensor
-    
-    Examples:
-        >>> t = Tensor([1, 2, 3, 4, 5])
-        >>> print(getitem(t, 2))
-        Tensor(3.)
-        
-        >>> print(getitem(t, slice(1, 4)))
-        Tensor([2. 3. 4.])
-        
-        >>> mask = Tensor([True, False, True, False, True])
-        >>> print(getitem(t, mask))
-        Tensor([1. 3. 5.])
     """
     # Convert Tensor boolean masks to numpy arrays
     if isinstance(key, Tensor):
@@ -65,21 +53,6 @@ def setitem(t: Tensor, key, value: Union[Tensor, np.ndarray, float, int]) -> Non
         t: Input tensor (modified in-place)
         key: Index, slice, or boolean mask
         value: Value to set (Tensor, array, or scalar)
-    
-    Examples:
-        >>> t = Tensor([1, 2, 3])
-        >>> setitem(t, 1, 10)
-        >>> print(t)
-        Tensor([ 1. 10.  3.])
-        
-        >>> setitem(t, slice(0, 2), Tensor([5, 6]))
-        >>> print(t)
-        Tensor([ 5.  6.  3.])
-        
-        >>> mask = Tensor([True, False, True])
-        >>> setitem(t, mask, 0)
-        >>> print(t)
-        Tensor([0. 6. 0.])
     """
     # Convert Tensor key to numpy array
     if isinstance(key, Tensor):

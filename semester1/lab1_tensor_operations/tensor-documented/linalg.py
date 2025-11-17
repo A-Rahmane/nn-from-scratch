@@ -27,26 +27,6 @@ def matmul(a: Tensor, b: Tensor) -> Tensor:
     
     Raises:
         ValueError: If shapes are incompatible for matrix multiplication
-    
-    Examples:
-        >>> a = Tensor([[1, 2], [3, 4]])
-        >>> b = Tensor([[5, 6], [7, 8]])
-        >>> print(matmul(a, b))
-        Tensor([[19. 22.]
-                [43. 50.]])
-        
-        >>> # 1D @ 2D
-        >>> v = Tensor([1, 2])
-        >>> m = Tensor([[3, 4], [5, 6]])
-        >>> print(matmul(v, m))
-        Tensor([13. 16.])
-        
-        >>> # Batch matrix multiplication
-        >>> a_batch = Tensor([[[1, 2]], [[3, 4]]])  # shape (2, 1, 2)
-        >>> b_batch = Tensor([[[5], [6]], [[7], [8]]])  # shape (2, 2, 1)
-        >>> result = matmul(a_batch, b_batch)
-        >>> print(result.shape)
-        (2, 1, 1)
     """
     if not isinstance(b, Tensor):
         b = Tensor(b)
@@ -75,20 +55,6 @@ def dot(a: Tensor, b: Tensor) -> Tensor:
     
     Returns:
         Dot product result
-    
-    Examples:
-        >>> # 1D dot product
-        >>> a = Tensor([1, 2, 3])
-        >>> b = Tensor([4, 5, 6])
-        >>> print(dot(a, b))
-        Tensor(32.)
-        
-        >>> # 2D matrix multiplication
-        >>> a = Tensor([[1, 2], [3, 4]])
-        >>> b = Tensor([[5, 6], [7, 8]])
-        >>> print(dot(a, b))
-        Tensor([[19. 22.]
-                [43. 50.]])
     """
     if not isinstance(b, Tensor):
         b = Tensor(b)
