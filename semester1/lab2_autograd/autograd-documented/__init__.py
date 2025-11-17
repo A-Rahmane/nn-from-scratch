@@ -13,19 +13,6 @@ Modules:
 - utilities.py: Gradient utilities (clipping, checking, etc.)
 - visualization.py: Computational graph visualization
 
-Usage:
-    from semester1.lab2_autograd.autograd import Tensor, no_grad
-    
-    # Create tensor with gradient tracking
-    x = Tensor([2.0], requires_grad=True)
-    y = x ** 2
-    y.backward()
-    print(x.grad)  # Tensor([4.0])
-    
-    # Disable gradient tracking
-    with no_grad():
-        z = x * 2  # No gradients tracked
-
 Architecture:
     The Tensor class extends the base Tensor from Lab 1 with:
     - Computational graph tracking (_prev, _op, grad_fn)
